@@ -1,0 +1,73 @@
+---
+title: "An Introduction to Statistical Learning - Notes"
+output: html_document
+---
+
+```{r include = FALSE}
+library(MASS)
+library(tidyverse)
+attach(Boston)
+```
+
+## Chapter 3 - Part A - Linear Regression
+In this chapter, we learn about how to fit a simple linear model to data. The following are the exercises:
+```{r}
+names(Boston)
+```
+  
+```{r}
+ggplot(Boston, aes(x=lstat, y=medv)) + geom_point() + geom_smooth(method=lm)
+
+lm.fit=lm(medv~lstat)
+summary(lm.fit)
+```
+
+lm. fit is a linear model fit to the data. The linear model has multiple attributes, which can be seen and then accessed using the following:
+```{r}
+names(lm.fit)
+coef(lm.fit)
+```
+Note: coef is a generic function which extracts model coefficients from objects returned by modeling functions
+
+Can also extract components from the model using ex.:
+
+```{r}
+residuals<-lm.fit$residuals
+lm.fit$residuals
+```
+
+Get confidence interval of coefficient estimates
+```{r}
+confint(lm.fit)
+```
+
+Predict a data value using the predict() function - in this example, we are predicting the medv, or median house value, at 5%, 10%, and 15% of houses being low-income. Can produce the confidence interval for the lstat value of 10 (interval = "confidence") or the confidence interval of the prediction (interval = "prediction")
+```{r}
+predict(lm.fit, data.frame(lstat=c(5,10,15)), interval = "confidence")
+predict(lm.fit, data.frame(lstat=c(5,10,15)), interval = "prediction")
+```
+Note: can use plot(lstat, medv), abline(lm.fit) to quickly plot data and line. abline(a,b) plots any line with intercept a, slope b
+```{r}
+plot(lstat, medv,pch=20)
+abline(lm.fit)
+```
+
+Plot diagnostic plots:
+```{r}
+par(mfrow=c(2,2))
+plot(lm.fit)
+```
+Plot residuals using rstudent() function:
+```{r}
+plot(predict(lm.fit), residuals(lm.fit))
+plot(predict(lm.fit), rstudent(lm.fit))
+plot(hatvalues(lm.fit))
+```
+
+## Chapter 3 - Part B - Multiple Linear Regression
+
+Multiple
+```{r}
+
+
+```
