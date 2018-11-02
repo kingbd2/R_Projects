@@ -33,7 +33,7 @@ Can also extract components from the model using ex.:
 
 ```{r}
 residuals<-lm.fit$residuals
-lm.fit$residuals
+# lm.fit$residuals
 ```
 
 Get confidence interval of coefficient estimates
@@ -66,8 +66,16 @@ plot(hatvalues(lm.fit))
 
 ## Chapter 3 - Part B - Multiple Linear Regression
 
-Multiple
+Multiple linear regression using lstat and age as predictors
 ```{r}
+lm.fit=lm(medv~lstat+age, data=Boston)
+summary(lm.fit)
 
+```
+
+Multiple linear regression using all variables as predictors
+```{r}
+lm.fit=lm(medv~., data=Boston)
+summary(lm.fit)
 
 ```
