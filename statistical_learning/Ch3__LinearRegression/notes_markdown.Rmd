@@ -1,0 +1,157 @@
+---
+title: "An Introduction to Statistical Learning - Notes"
+output:
+  pdf_document: default
+  html_document: default
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include = FALSE}
+library(MASS)
+library(tidyverse)
+attach(Boston)
+```
+
+## Chapter 3 - Part A - Linear Regression
+In this chapter, we learn about how to fit a simple linear model to data. The following are the exercises:
+```{r}
+names(Boston)
+```
+  
+```{r}
+ggplot(Boston, aes(x=lstat, y=medv)) + geom_point() + geom_smooth(method=lm)
+
+lm.fit=lm(medv~lstat)
+summary(lm.fit)
+```
+
+lm. fit is a linear model fit to the data. The linear model has multiple attributes, which can be seen and then accessed using the following:
+```{r}
+names(lm.fit)
+coef(lm.fit)
+```
+Note: coef is a generic function which extracts model coefficients from objects returned by modeling functions
+
+Can also extract components from the model using ex.:
+
+```{r}
+residuals<-lm.fit$residuals
+# lm.fit$residuals
+```
+
+Get **confidence interval** of coefficient estimates
+```{r}
+confint(lm.fit)
+```
+
+Predict a data value using the predict() function - in this example, we are predicting the medv, or median house value, at 5%, 10%, and 15% of houses being low-income. Can produce the confidence interval for the lstat value of 10 (interval = "confidence") or the confidence interval of the prediction (interval = "prediction")
+```{r}
+predict(lm.fit, data.frame(lstat=c(5,10,15)), interval = "confidence")
+predict(lm.fit, data.frame(lstat=c(5,10,15)), interval = "prediction")
+```
+Note: can use plot(lstat, medv), abline(lm.fit) to quickly plot data and line. abline(a,b) plots any line with intercept a, slope b
+```{r}
+plot(lstat, medv,pch=20)
+abline(lm.fit)
+```
+
+Plot diagnostic plots:
+```{r}
+par(mfrow=c(2,2))
+plot(lm.fit)
+```
+Plot residuals using rstudent() function:
+```{r}
+plot(predict(lm.fit), residuals(lm.fit))
+plot(predict(lm.fit), rstudent(lm.fit))
+plot(hatvalues(lm.fit))
+```
+
+## Chapter 3 - Part B - Multiple Linear Regression
+
+**Multiple linear regression** using lstat and age as predictors
+```{r}
+lm.fit=lm(medv~lstat+age, data=Boston)
+summary(lm.fit)
+
+```
+
+**Multiple linear regression** using all variables as predictors. 
+```{r}
+lm.fit=lm(medv~., data=Boston)
+summary(lm.fit)
+
+```
+Get specific values from the model using:
+
+The function summary.lm computes and returns a list of summary statistics of the fitted linear model given in object, using the components (list elements) "call" and "terms" from its argument, plus: 
+
+residuals: the weighted residuals, the usual residuals rescaled by the square root of the weights specified in the call to lm.
+
+coefficients: a p x 4 matrix with columns for the estimated coefficient, its standard error, t-statistic and corresponding (two-sided) p-value. Aliased coefficients are omitted.
+
+aliased: named logical vector showing if the original coefficients are aliased.
+
+sigma: the square root of the estimated variance of the random error
+σ^2 = 1/(n-p) Sum(w[i] R[i]^2), where R[i] is the i-th residual, residuals[i].
+
+df: degrees of freedom, a 3-vector (p, n-p, p*), the first being the number of non-aliased coefficients, the last being the total number of coefficients.
+
+fstatistic: (for models including non-intercept terms) a 3-vector with the value of the F-statistic with its numerator and denominator degrees of freedom.
+
+r.squared: R^2, the ‘fraction of variance explained by the model’, R^2 = 1 - Sum(R[i]^2) / Sum((y[i]- y*)^2), where y* is the mean of y[i] if there is an intercept and zero otherwise.
+adj.r.squared	the above R^2 statistic ‘adjusted’, penalizing for higher p.
+
+cov.unscaled: a p x p matrix of (unscaled) covariances of the coef[j], j=1, …, p.
+
+correlation: the correlation matrix corresponding to the above cov.unscaled, if correlation = TRUE is specified.
+
+symbolic.cor: (only if correlation is true.) The value of the argument symbolic.cor.
+
+na.action: from object, if present there.
+
+EXAMPLE:
+```{r}
+summary(lm.fit)$r.squared
+```
+
+**Interaction terms** are assessed using X1:X2 notation. Also, X1*X2 includes X1, X2, and X1:X2 as predictors. For example:
+```{r}
+lm.fit<-lm(medv~lstat*age, data = Boston)
+summary(lm.fit)
+summary(lm.fit)$r.squared
+```
+
+**Non-linear transformation** can be done using I(X^2). For example:
+```{r}
+lm.fit<-lm(medv~lstat+I(lstat^2), data = Boston)
+summary(lm.fit)
+summary(lm.fit)$r.squared
+```
+
+Compare two models using ANOVA. Below, comparing the two linear models, one with and one without the quadratic term.
+```{r}
+lm.fit1=lm(medv~lstat, data = Boston)
+lm.fit2=lm(medv~lstat+I(lstat^2), data = Boston)
+anova(lm.fit1, lm.fit2)
+par(mfrow=c(2,2))
+plot(lm.fit2)
+plot(lstat, medv,pch=20)
+abline(lm.fit2)
+```
+
+### Qualitative Predictors
+Example using the Carseats dataset from the ISLR package:
+```{r}
+names(ISLR::Carseats)
+lm.fit=lm(Sales~.+Income:Advertising+Price:Age,data=ISLR::Carseats)
+summary(lm.fit)
+```
+
+The ShelveLoc predictor is a categorical variable that gets transformed into dummy variables. We can see the dummy variables using contrasts:
+```{r}
+attach(ISLR::Carseats)
+contrasts(ShelveLoc)
+```
